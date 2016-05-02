@@ -8,5 +8,6 @@ classdef SolverTest < matlab.unittest.TestCase
         testInvert3( testCase )
         testInvertvp1( testCase )
         testInvertvp2( testCase )
+        testFixedNvsFixedmu( testCase )
     end
 end

@@ -19,7 +19,7 @@ v(x<-R) = vL;
 
 shoot = solver(Nelem,dx);
 
-dens = @(E) density(shoot(E,v,vL,vR));
+dens = @(E) ldos(shoot(E,v,vL,vR));
 green = @(E) greens(shoot(E,v,vL,vR));
 resp = @(E) response(shoot(E,v,vL,vR));
 

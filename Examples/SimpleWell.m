@@ -16,7 +16,7 @@ vR = 0;
 
 shoot = solver(Nelem,dx);
 
-dens = @(E) density(shoot(E,v,vL,vR));
+dens = @(E) ldos(shoot(E,v,vL,vR));
 green = @(E) greens(shoot(E,v,vL,vR));
 resp = @(E) response(shoot(E,v,vL,vR));
 
@@ -62,7 +62,7 @@ subplot(2,2,1);
 plot(x,n);
 xlim([min(x),max(x)]);
 
-title('density and integrated density');
+title('density');
 
 subplot(2,2,3);
 plot(x,v,'r');
@@ -83,3 +83,4 @@ contourf(x,x,densmat);
 colorbar;
 
 title('density matrix');
+

@@ -3,9 +3,9 @@
 RelTol = eps;
 AbsTol = eps;
 
-A = -6;
-B = 10;
-Nelem = 200;
+A = -15;
+B = 11;
+Nelem = 300;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
 
@@ -22,7 +22,7 @@ v2 = -cosh(x-R).^-2;
 
 shoot = solver(Nelem,dx);
 
-dens = @(E,v,vL,vR) density(shoot(E,v,vL,vR));
+dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
 resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
 
 E0 = min(v1+v2)-1;

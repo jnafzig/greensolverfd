@@ -1,4 +1,4 @@
-function [ dn] = density(solution)
+function [ dn] = ldos(solution)
     %SOLUTION 
 %     solution = [phiL,dphiL,phiR,dphiR];
 

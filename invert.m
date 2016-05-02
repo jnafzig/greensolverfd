@@ -1,14 +1,18 @@
 function  v  = invert( dx, n0, mu, v0, vL, vR )
     %INVERT tries to find v such that v -> n0 at a chemical potential mu
 
-    RelTol = 1e-4;
-    AbsTol = 1e-4;
+    vsR = 0; % currently the inverted potential is assumed to be zero 
+    vsL = 0; % outside the gridded region.  For now vsR and vsL can be 
+             % adjusted manually to play around with that assumption.
+    
+    RelTol = eps;
+    AbsTol = eps;
     
     Nelem = numel(n0);
     shoot = solver(Nelem,dx);
 
-    dens = @(E,v) density(shoot(E,v,vL,vR));
-    resp = @(E,v) response(shoot(E,v,vL,vR));
+    dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
+    resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
 
     E0 = min(v0)-1;
 
@@ -23,7 +27,7 @@ function  v  = invert( dx, n0, mu, v0, vL, vR )
     fprintf(' -----------------------------------------\n');
     
     maxiter = 20;
-    tol = 1e-13;
+    tol = 1e-15;
     optimality = 1;
     iter = 0; 
     while iter<=maxiter && optimality>tol;
@@ -37,13 +41,13 @@ function  v  = invert( dx, n0, mu, v0, vL, vR )
     
     function [err,grad] = eqn(v)
 
-        n = integral(@(theta) dens(E(theta),v)*dEdt(theta),0,pi,...
+        n = integral(@(theta) dens(E(theta),v,vL+vsL,vR+vsR)*dEdt(theta),0,pi,...
             'ArrayValued',true,...
             'RelTol',RelTol,...
             'AbsTol',AbsTol);
         n = n+conj(n);
 
-        grad = dx*integral(@(theta) resp(E(theta),v)*dEdt(theta),0,pi,...
+        grad = dx*integral(@(theta) resp(E(theta),v,vL+vsL,vR+vsR)*dEdt(theta),0,pi,...
                     'ArrayValued',true,...
                     'RelTol',1e-1,...
                     'AbsTol',1e-1);

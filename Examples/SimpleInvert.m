@@ -1,26 +1,24 @@
 RelTol = eps;
 AbsTol = eps;
 
-A = -6;
-B = 6;
+A = 0;
+B = pi;
 Nelem = 100;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
 
-R = 3;
-v1 = -cosh(x+R/2).^-2;
-v2 = -cosh(x-R/2).^-2;
+v = -ones(Nelem,1);
+vdiff = cos(x)/6;
 vL = 0;
 vR = 0;
 
 shoot = solver(Nelem,dx);
 
-dens = @(E,v) density(shoot(E,v,vL,vR));
+dens = @(E,v) ldos(shoot(E,v,vL,vR));
 resp = @(E,v) response(shoot(E,v,vL,vR));
 
-E0 = min(v1+v2)-1;
+E0 = min(v+vdiff)-1;
 mu = -.25;
-kf = sqrt(-2*mu);
 
 R = (E0+mu)/2;
 A = mu-R;
@@ -28,23 +26,23 @@ E = @(theta) R + A*exp(1i*theta);
 dEdt = @(theta) 1i*A*exp(1i*theta);
 
 tic;
-n1 = integral(@(theta) dens(E(theta),v1)*dEdt(theta),0,pi,...
+n = integral(@(theta) dens(E(theta),v+vdiff)*dEdt(theta),0,pi,...
             'ArrayValued',true,...
             'RelTol',RelTol,...
             'AbsTol',AbsTol);
-n1 = n1+conj(n1);
+n = n+conj(n);
 toc;
-tic;
-n2 = integral(@(theta) dens(E(theta),v2)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-n2 = n2+conj(n2);
-toc;
-nf = n1+n2;
 
 tic;
-vinv = invert(dx,nf,mu,v1+v2,vL,vR);
+n0 = integral(@(theta) dens(E(theta),v)*dEdt(theta),0,pi,...
+            'ArrayValued',true,...
+            'RelTol',RelTol,...
+            'AbsTol',AbsTol);
+n0 = n0+conj(n0);
+toc;
+
+tic;
+vinv = invert(dx,n,mu,v,vL,vR);
 toc;
 
 tic;
@@ -56,28 +54,30 @@ ninv = ninv+conj(ninv);
 toc;
 
 subplot(2,2,1);
-plot(x,[n1,n2,nm,nf);
+plot(x,[n,ninv,n0]);
 xlim([min(x),max(x)]);
 
 title('density');
 
 subplot(2,2,3);
-plot(x,v,'r');
+plot(x,[v+vdiff,vinv,v]);
 
-ylim([min(v)-1/2,max(v)+1/2]);
+ylim([min(vinv)-.2,max(vinv)+.2]);
 xlim([min(x),max(x)]);
 
 title('potential');
 
 subplot(2,2,4);
-contourf(x,x,chi);
-colorbar;
+plot(x,[vinv-v-vdiff]);
 
-title('response');
+xlim([min(x),max(x)]);
+
+title('vinv-v1-v2');
 
 subplot(2,2,2);
-contourf(x,x,densmat); 
-colorbar;
 
-title('density matrix');
+plot(x,ninv-n);
+xlim([min(x),max(x)]);
+
+title('density error');
 

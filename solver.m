@@ -50,4 +50,3 @@ function [ solver_fh ] = solver(Nelem, dx)
 
     end
 end
-

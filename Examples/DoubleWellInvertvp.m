@@ -18,7 +18,7 @@ vR2 = 0;
 
 shoot = solver(Nelem,dx);
 
-dens = @(E,v,vL,vR) density(shoot(E,v,vL,vR));
+dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
 resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
 
 E0 = min(v1+v2)-1;

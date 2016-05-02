@@ -41,7 +41,7 @@ function testPoschlTeller( testCase )
     Check = phiL-phiR;
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',1e-10);
     
-    dens = @(E) density(shoot(E,v,vL,vR));
+    dens = @(E) ldos(shoot(E,v,vL,vR));
     
     R = 1/4;
     E = @(theta) E0 + R*exp(1i*theta);

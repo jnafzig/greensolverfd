@@ -38,8 +38,8 @@ function testResponse( testCase )
 
         chi = response(shoot(E,v,vL,vR));
 
-        n1 = density(shoot(E,v1,vL,vR));
-        n2 = density(shoot(E,v2,vL,vR));
+        n1 = ldos(shoot(E,v1,vL,vR));
+        n2 = ldos(shoot(E,v2,vL,vR));
 
         % The change in density should be equal to response * change in
         % potential
