@@ -4,11 +4,10 @@ RelTol = eps;
 AbsTol = eps;
 
 A = -15;
-B = 11;
-Nelem = 300;
+B = 10;
+Nelem = 400;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
-
 
 vL1 = -1;
 vR1 = 0;
@@ -43,7 +42,7 @@ nm = nm+conj(nm);
 toc;
 
 tic;
-vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2);
+vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2,1e-12);
 toc;
 
 tic;

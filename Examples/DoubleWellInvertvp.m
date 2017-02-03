@@ -2,8 +2,8 @@
 RelTol = eps;
 AbsTol = eps;
 
-A = -10;
-B = 10;
+A = -6;
+B = 6;
 Nelem = 100;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
@@ -22,7 +22,7 @@ dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
 resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
 
 E0 = min(v1+v2)-1;
-mu = -.25;
+mu = -.4;
 kf = sqrt(-2*mu);
 
 R = (E0+mu)/2;
@@ -39,7 +39,7 @@ nm = nm+conj(nm);
 toc;
 
 tic;
-vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2);
+vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2,eps);
 toc;
 
 tic;

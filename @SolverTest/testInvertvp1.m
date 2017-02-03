@@ -41,7 +41,7 @@ function testInvertvp1( testCase )
     toc;
 
     tic;
-    vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2);
+    vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2,AbsTol);
     toc;
 
     tic;

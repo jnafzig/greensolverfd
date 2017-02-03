@@ -1,4 +1,8 @@
-function  v  = invert( dx, n0, mu, v0, vL, vR )
+function  v  = invert( dx, n0, mu, v0, vL, vR, TolFun )
+    if nargin < 7
+        TolFun = 1e-6;
+    end
+    
     %INVERT tries to find v such that v -> n0 at a chemical potential mu
 
     vsR = 0; % currently the inverted potential is assumed to be zero 
@@ -21,23 +25,28 @@ function  v  = invert( dx, n0, mu, v0, vL, vR )
     E = @(theta) R + A*exp(1i*theta);
     dEdt = @(theta) 1i*A*exp(1i*theta);
 
-    v = v0;
-    
-    fprintf(' iter     res_ncon        res_Ncon\n');
-    fprintf(' -----------------------------------------\n');
-    
-    maxiter = 20;
-    tol = 1e-15;
-    optimality = 1;
-    iter = 0; 
-    while iter<=maxiter && optimality>tol;
-        [err,grad] = eqn(v);  
-        optimality = max(abs(err));
-        dv = - grad\err;
-        v = v + dv; 
-        fprintf('   %i    %e    %e\n',iter,optimality,sum(err));
-        iter = iter+1;   
-    end
+    options = optimoptions('fsolve',...
+        'Jacobian','on',...
+        'TolFun',TolFun,...
+        'Display','iter');
+    v = fsolve(@eqn,v0,options);
+
+%     v = v0;
+%     fprintf(' iter     res_ncon        res_Ncon\n');
+%     fprintf(' -----------------------------------------\n');
+%     
+%     maxiter = 20;
+%     tol = 1e-15;
+%     optimality = 1;
+%     iter = 0; 
+%     while iter<=maxiter && optimality>tol;
+%         [err,grad] = eqn(v);  
+%         optimality = max(abs(err));
+%         dv = - grad\err;
+%         v = v + dv; 
+%         fprintf('   %i    %e    %e\n',iter,optimality,sum(err));
+%         iter = iter+1;   
+%     end
     
     function [err,grad] = eqn(v)
 

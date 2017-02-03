@@ -1,4 +1,8 @@
-function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2 )
+function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2, TolFun)
+    if nargin < 10
+        TolFun = 1e-6;
+    end
+    
     %INVERT tries to find v such that v -> n0 at a chemical potential mu
 
     vpR = 0; % currently the partition potential is assumed to be zero 
@@ -22,31 +26,41 @@ function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2 )
     dEdt = @(theta) 1i*A*exp(1i*theta);
 
     v = zeros(Nelem,1);
+
+    options = optimoptions('fsolve',...
+        'Jacobian','on',...
+        'TolFun',TolFun,...
+        'Display','iter');
+    v = fsolve(@eqn,v,options);
     
-    fprintf(' iter     res_ncon        res_Ncon\n');
-    fprintf(' -----------------------------------------\n');
-    
-    maxiter = 20;
-    tol = 1e-13;
-    optimality = 1; 
-    iter = 0; 
-    while iter<=maxiter && optimality>tol;
-        [err,grad] = eqn(v);   
-        n1;n2;
-        optimality = max(abs(err));
-        dv = - grad\err;
+%    
+%     fprintf(' iter     res_ncon        res_Ncon\n');
+%     fprintf(' -----------------------------------------\n');
+%     
+%     maxiter = 20;
+%     tol = 1e-13;
+%     optimality = 1; 
+%     iter = 0; 
+%     while iter<=maxiter && optimality>tol;
+%         [err,grad] = eqn(v);   
+%         n1;n2;
+%         optimality = max(abs(err));
+%         dv = - grad\err;
 %         if abs(dv(end))>1
 %             dv(end) = sign(dv(end));
 %         end
 %         if abs(dv(1))>1
 %             dv(end) = sign(dv(1));
 %         end
-        
-        v = v + dv; 
-        
-        fprintf('   %i    %e    %e\n',iter,optimality,sum(err));
-        iter = iter+1;   
-    end
+%         
+%         v = v + dv; 
+%         
+%         fprintf('   %i    %e    %e\n',iter,optimality,sum(err));
+%         iter = iter+1;   
+% end
+    
+    
+    
     
     function [err,grad] = eqn(vp)
 

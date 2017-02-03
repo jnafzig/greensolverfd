@@ -3,8 +3,8 @@ clear;
 RelTol = eps;
 AbsTol = eps;
 
-A = -7;
-B = 7;
+A = -4;
+B = 4;
 Nelem = 100;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);

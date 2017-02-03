@@ -46,7 +46,7 @@ toc;
 nf = n1+n2;
 
 tic;
-vinv = invert(dx,nf,mu,v1+v2,vL,vR);
+vinv = invert(dx,nf,mu,v1+v2,vL,vR,eps);
 toc;
 
 tic;

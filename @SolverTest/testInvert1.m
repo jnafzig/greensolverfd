@@ -37,7 +37,7 @@ function testInvert1( testCase )
     toc;
 
     tic;
-    vinv = invert(dx,n,mu,v+vdiff,vL,vR);
+    vinv = invert(dx,n,mu,v+vdiff,vL,vR,AbsTol);
     toc;
 
     tic;
