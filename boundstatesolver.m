@@ -1,6 +1,9 @@
 function [ solver_fh ] = eigsolver(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
+    %
+    % Returns a handle to a function which can provide density and response
+    %
     
 
     % Schrodinger equation is eig problem is H*phi = E*phi,
@@ -49,13 +52,34 @@ function [ solver_fh ] = eigsolver(Nelem, dx)
     % return function handle
     solver_fh = @(N,v) eigsolve(N,v);
 
-    function [Evals,Evecs] = eigsolve(N,v)
+    function [n,response] = eigsolve(N,v)
         matV = sparse(ival,jval,-2*v,2*Nelem+1,2*Nelem+1,Nelem);
 
         A = blkdiag(A0+matV,speye(2*Nelem+1));
         
         [Evecs,kvals] = eigs(A,B,N,sqrt(abs(2*min(v))));
-        Evals = -diag(kvals).^2/2;
+%         Evals = -diag(kvals).^2/2;
+
+        % normalization
+        int = (Evecs(1,:).^2+Evecs(Nelem,:).^2)/(2*kvals);
+        C = sum(Evecs(1:Nelem,:).^2)*dx + int;
+        Evecs = Evecs*diag(C.^-(1/2));
+        
+        n = sum(Evecs(1:Nelem,:).^2,2);
+
+        if nargout>1
+            response = zeros(Nelem);
+            for i = 1:N
+                Evec = Evecs(:,i);
+                kval = kvals(i,i);
+                lhs = [[A-kval*B,B*Evec];[transpose(Evec),0]];
+                rhs = sparse(ival,jval,2*Evec(1:Nelem),4*Nelem+3,Nelem,Nelem);
+                dndphi = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
+
+                response = response + dndphi*(lhs\rhs);
+            end
+            response = (response+response')/2;           
+        end
     end
     
 end

@@ -16,18 +16,13 @@ function testResponse( testCase )
     vR = 0;
 
     shoot = solver(Nelem,dx);
-    boundstates = eigsolver(Nelem,dx);
+    bssolver = boundstatesolver(Nelem,dx);
     dens = @(E) ldos(shoot(E,v,vL,vR));
 
     N = 4;
     tic;
-    Evals = boundstates(N,v);
+    nb = bssolver(N,v);
     toc;
-
-    nb = zeros(Nelem,1);
-    for i = 1:N
-        nb = nb + boundstatedensity(Evals(i),shoot(Evals(i),v,vL,vR), dx);
-    end
 
     E0 = min(v)-1;
     mu = -.25;
@@ -51,6 +46,5 @@ function testResponse( testCase )
 
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',2*Nelem*eps);
 
-     
 end
 

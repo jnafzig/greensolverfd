@@ -1,6 +1,7 @@
 classdef SolverTest < matlab.unittest.TestCase
     methods (Test)
         testResponse( testCase )
+        testBoundStateResponse( testCase )
         testFreeParticle( testCase )
         testPoschlTeller( testCase )
         testInvert1( testCase )
