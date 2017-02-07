@@ -103,7 +103,7 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
                 rhs = sparse(ival,jval,2*Evec(1:Nelem),4*Nelem+3,Nelem,Nelem);
                 dndvec1 = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
                 
-                dvecdv = (lhs\rhs);
+                dvecdv = (lhs\rhs)/dx;
 
                 response = response + dndvec1*dvecdv ...
                     - 2*dx*Evec(1:Nelem).^2*(Evec(1:Nelem)'*dvecdv(1:Nelem,:)) ...

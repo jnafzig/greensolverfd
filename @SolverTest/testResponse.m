@@ -22,13 +22,13 @@ function testResponse( testCase )
         dv = testparameters(i,2);
         Nelem = testparameters(i,3);
                 
-        A = -5;
-        B = 5;
+        A = -2;
+        B = 2;
         x = linspace(A,B,Nelem)';
         dx = x(2)-x(1);
 
         v = -cosh(x).^-2;
-        vdiff = dv * x.*cosh(x).^-2;
+        vdiff = dv * rand(size(v));
         v1 = v - vdiff;
         v2 = v + vdiff;
         vL = 0;

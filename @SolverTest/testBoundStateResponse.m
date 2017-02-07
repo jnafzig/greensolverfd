@@ -3,26 +3,20 @@ function testBoundStateResponse( testCase )
     % response to small change in potential 
     
 
-    % testing set: [E, dv, Nelem]
-    testparameters = [[1e-3,  10]; ...
-                      [1e-6,  30]; ...
-                      [1e-4,  20]; ...
-                      [1e-10, 20]; ...
-                      [1e-11, 100]];
-    Ntest = size(testparameters,1);
+    Ntest = 10;
     
     for i = 1:Ntest
 
-        dv = testparameters(i,1);
-        Nelem = testparameters(i,2);
+        dv = 1e-6;
+        Nelem = 50;
                 
-        A = -5;
-        B = 5;
+        A = -2;
+        B = 2;
         x = linspace(A,B,Nelem)';
         dx = x(2)-x(1);
 
         v = -cosh(x).^-2;
-        vdiff = dv * x.*cosh(x).^-2;
+        vdiff = dv * rand(size(v));
         v1 = v - vdiff;
         v2 = v + vdiff;
 
@@ -40,7 +34,7 @@ function testBoundStateResponse( testCase )
         Check = (n2-n1)/2 - chi*vdiff*dx;
          
         testCase.verifyEqual(max(abs(Check)),0,...
-            'AbsTol',max(2*dv*dx^2,2e-10));
+            'AbsTol',1e-14);
     end
      
 end
