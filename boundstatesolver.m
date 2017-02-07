@@ -1,4 +1,4 @@
-function [ solver_fh ] = eigsolver(Nelem, dx)
+function [ solver_fh ] = boundstatesolver(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
     %
@@ -65,21 +65,67 @@ function [ solver_fh ] = eigsolver(Nelem, dx)
         C = sum(Evecs(1:Nelem,:).^2)*dx + int;
         Evecs = Evecs*diag(C.^-(1/2));
         
+        Lvecs =  Evecs(1:Nelem,:);
+        Lvecs(1,:) = Lvecs(1,:) + Lvecs(1,:)/(2*kvals*dx);
+        Lvecs(Nelem,:) = Lvecs(Nelem,:) + Lvecs(Nelem,:)/(2*kvals*dx);
+        
         n = sum(Evecs(1:Nelem,:).^2,2);
-
+        
+%         numdndvec = numfuncderiv(@density,Evecs(:,1));
+%         dndvec = sparse(1:Nelem,1:Nelem,2*Evecs(1:Nelem,1),Nelem,4*Nelem+3,Nelem);
+%         dndvec(1:Nelem,1:Nelem) = dndvec(1:Nelem,1:Nelem) ...
+%                     - 2*Evecs(1:Nelem,1).^2*Evecs(1:Nelem,1)'*dx;
+%         dndvec(1:Nelem,1) = dndvec(1:Nelem,1) ...
+%                     - Evecs(1:Nelem,1).^2*Evecs(1,1)/kvals(1,1);
+%         dndvec(1:Nelem,Nelem) = dndvec(1:Nelem,Nelem) ...
+%                     - Evecs(1:Nelem,1).^2*Evecs(Nelem,1)/kvals(1,1);
+%                 
+        
         if nargout>1
             response = zeros(Nelem);
+            response2 = zeros(Nelem);
+            response3 = zeros(Nelem);
+            response4 = zeros(Nelem);
+            response5 = zeros(Nelem);
             for i = 1:N
+%                 Evec = Evecs(:,i);
+%                 kval = kvals(i,i);
+%                 lhs = [[A-kval*B,B*Evec];[transpose(Evec),0]];
+%                 rhs = sparse(ival,jval,2*Evec(1:Nelem),4*Nelem+3,Nelem,Nelem);
+%                 dndphi = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
                 Evec = Evecs(:,i);
+                Lvec = Lvecs(:,i);
                 kval = kvals(i,i);
-                lhs = [[A-kval*B,B*Evec];[transpose(Evec),0]];
+                lhs = [[A-kval*B,B*Evec];...
+                    [transpose(Lvec(1:Nelem)),...
+                    zeros(1,3*Nelem+2),...
+                    -(Evec(1)^2+Evec(Nelem)^2)/kval^2]];
                 rhs = sparse(ival,jval,2*Evec(1:Nelem),4*Nelem+3,Nelem,Nelem);
-                dndphi = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
+                dndvec1 = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
+                
+                dvecdv = (lhs\rhs);
 
-                response = response + dndphi*(lhs\rhs);
+                response = response + dndvec1*dvecdv ...
+                    - 2*dx*Evec(1:Nelem).^2*(Evec(1:Nelem)'*dvecdv(1:Nelem,:)) ...
+                    - Evec(1)/kval*Evec(1:Nelem).^2*dvecdv(1,:) ...
+                    - Evec(Nelem)/kval*Evec(1:Nelem).^2*dvecdv(Nelem,:) ...
+                    - Evec(1:Nelem).^2*(Evec(1)^2+Evec(Nelem)^2)/kval^2/2*dvecdv(end,:);
             end
-            response = (response+response')/2;           
+            
+        end
+        
+        
+        function n = density(Evecs)
+            % normalization
+            int = (Evecs(1,:).^2+Evecs(Nelem,:).^2)/(2*kvals(1,1));
+            C = sum(Evecs(1:Nelem,:).^2)*dx + int;
+            Evecs = Evecs*diag(C.^-(1/2));
+
+
+            n = sum(Evecs(1:Nelem,:).^2,2);
+
         end
     end
-    
+
 end
+

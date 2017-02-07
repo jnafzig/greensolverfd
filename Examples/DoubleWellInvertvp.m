@@ -59,7 +59,6 @@ n2 = n2+conj(n2);
 toc;
 nf = n1+n2;
 
-
 subplot(2,2,1);
 plot(x,[n1,n2,nm,nf]);
 xlim([min(x),max(x)]);
@@ -84,7 +83,7 @@ title('vp');
 
 subplot(2,2,2);
 
-plot(x,[nf-nm]);
+plot(x,nf-nm);
 xlim([min(x),max(x)]);
 
 title('density error');
