@@ -31,7 +31,7 @@ function testBoundStateResponse( testCase )
         
         % The change in density should be equal to response * change in
         % potential
-        Check = (n2-n1)/2 - chi*vdiff*dx;
+        Check = (n2-n1)/2 - chi*vdiff;
          
         testCase.verifyEqual(max(abs(Check)),0,...
             'AbsTol',1e-14);

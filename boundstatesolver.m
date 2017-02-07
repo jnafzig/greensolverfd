@@ -58,7 +58,6 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
         A = blkdiag(A0+matV,speye(2*Nelem+1));
         
         [Evecs,kvals] = eigs(A,B,N,sqrt(abs(2*min(v))));
-%         Evals = -diag(kvals).^2/2;
 
         % normalization
         int = (Evecs(1,:).^2+Evecs(Nelem,:).^2)/(2*kvals);
@@ -71,28 +70,9 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
         
         n = sum(Evecs(1:Nelem,:).^2,2);
         
-%         numdndvec = numfuncderiv(@density,Evecs(:,1));
-%         dndvec = sparse(1:Nelem,1:Nelem,2*Evecs(1:Nelem,1),Nelem,4*Nelem+3,Nelem);
-%         dndvec(1:Nelem,1:Nelem) = dndvec(1:Nelem,1:Nelem) ...
-%                     - 2*Evecs(1:Nelem,1).^2*Evecs(1:Nelem,1)'*dx;
-%         dndvec(1:Nelem,1) = dndvec(1:Nelem,1) ...
-%                     - Evecs(1:Nelem,1).^2*Evecs(1,1)/kvals(1,1);
-%         dndvec(1:Nelem,Nelem) = dndvec(1:Nelem,Nelem) ...
-%                     - Evecs(1:Nelem,1).^2*Evecs(Nelem,1)/kvals(1,1);
-%                 
-        
         if nargout>1
             response = zeros(Nelem);
-            response2 = zeros(Nelem);
-            response3 = zeros(Nelem);
-            response4 = zeros(Nelem);
-            response5 = zeros(Nelem);
             for i = 1:N
-%                 Evec = Evecs(:,i);
-%                 kval = kvals(i,i);
-%                 lhs = [[A-kval*B,B*Evec];[transpose(Evec),0]];
-%                 rhs = sparse(ival,jval,2*Evec(1:Nelem),4*Nelem+3,Nelem,Nelem);
-%                 dndphi = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
                 Evec = Evecs(:,i);
                 Lvec = Lvecs(:,i);
                 kval = kvals(i,i);
@@ -103,8 +83,8 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
                 rhs = sparse(ival,jval,2*Evec(1:Nelem),4*Nelem+3,Nelem,Nelem);
                 dndvec1 = sparse(1:Nelem,1:Nelem,2*Evec(1:Nelem),Nelem,4*Nelem+3,Nelem);
                 
-                dvecdv = (lhs\rhs)/dx;
-
+                dvecdv = (lhs\rhs);
+                
                 response = response + dndvec1*dvecdv ...
                     - 2*dx*Evec(1:Nelem).^2*(Evec(1:Nelem)'*dvecdv(1:Nelem,:)) ...
                     - Evec(1)/kval*Evec(1:Nelem).^2*dvecdv(1,:) ...
@@ -113,19 +93,7 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
             end
             
         end
-        
-        
-        function n = density(Evecs)
-            % normalization
-            int = (Evecs(1,:).^2+Evecs(Nelem,:).^2)/(2*kvals(1,1));
-            C = sum(Evecs(1:Nelem,:).^2)*dx + int;
-            Evecs = Evecs*diag(C.^-(1/2));
-
-
-            n = sum(Evecs(1:Nelem,:).^2,2);
-
-        end
     end
-
+        
 end
 

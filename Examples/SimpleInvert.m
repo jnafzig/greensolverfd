@@ -42,7 +42,7 @@ n0 = n0+conj(n0);
 toc;
 
 tic;
-vinv = invert(dx,n,mu,v,vL,vR);
+vinv = invert(dx,n,mu,v,vL,vR,eps);
 toc;
 
 tic;
@@ -68,11 +68,11 @@ xlim([min(x),max(x)]);
 title('potential');
 
 subplot(2,2,4);
-plot(x,[vinv-v-vdiff]);
+plot(x,[vinv-(v+vdiff)]);
 
 xlim([min(x),max(x)]);
 
-title('vinv-v1-v2');
+title('vinv-(v+vdiff)');
 
 subplot(2,2,2);
 
