@@ -15,7 +15,7 @@ function testFixedNvsFixedmu( testCase )
     vL = 0;
     vR = 0;
 
-    shoot = solver_fh(Nelem,dx);
+    shoot = shoot_fh(Nelem,dx);
     bssolver = boundstatesolver_fh(Nelem,dx);
     dens = @(E) ldos(shoot(E,v,vL,vR));
 

@@ -13,36 +13,17 @@ v = -10*cosh(x).^-2;
 vL = 0;
 vR = 0;
 
-shoot = solver_fh(Nelem,dx);
-boundstates = eigsolver_fh(Nelem,dx);
+solver = solver_fh(Nelem,dx);
 bssolver = boundstatesolver_fh(Nelem,dx);
-dens = @(E) ldos(shoot(E,v,vL,vR));
+boundstates = eigsolver_fh(Nelem,dx);
 
 N = 4;
-tic;
-[Evals,Evecs] = boundstates(N,v);
-toc;
-
-tic;
-nb = bssolver(N,v);
-toc;
-
-E0 = min(v)-1;
 mu = -.25;
-kf = sqrt(-2*mu);
 
-R = (E0+mu)/2;
-A = mu-R;
-E = @(theta) R + A*exp(1i*theta);
-dEdt = @(theta) 1i*A*exp(1i*theta);
+[Evals,Evecs] = boundstates(N,v);
 
-tic;
-n = integral(@(theta) dens(E(theta))*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-n = n+conj(n);
-toc;
+nb = bssolver(N,v);
+n = solver(mu,v,vL,vR);
 
 subplot(2,2,1);
 plot(x,[n,nb]);
@@ -70,7 +51,10 @@ title('density difference between fixed N and fixed mu');
 
 subplot(2,2,4);
 
-
+E0 = min(v)-1;
+R = (E0+mu)/2;
+A = mu-R; 
+E = @(theta) R + A*exp(1i*theta);
 plot(E(linspace(0,2*pi,200)),'Color',[.5,.5,.5],'LineStyle','--');
 hold on;
 plot(Evals,imag(Evals),'x','LineStyle', 'none')

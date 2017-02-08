@@ -1,6 +1,5 @@
 function testInvertvp2( testCase )
 
-
     RelTol = eps;
     AbsTol = eps;
 
@@ -9,7 +8,6 @@ function testInvertvp2( testCase )
     Nelem = 100;
     x = linspace(A,B,Nelem)';
     dx = x(2)-x(1);
-
 
     vL1 = -1;
     vR1 = 0;
@@ -21,52 +19,19 @@ function testInvertvp2( testCase )
     vR2 = 0;
     v2 = -cosh(x-R).^-2;
 
-    shoot = solver_fh(Nelem,dx);
+    solver = solver_fh(Nelem,dx);
 
-    dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
-    resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
-
-    E0 = min(v1+v2)-1;
     mu = -.25;
-    kf = sqrt(-2*mu);
+    
+    nm = solver(mu,v1+v2,vL1+vL2,vR1+vR2);
 
-    R = (E0+mu)/2;
-    A = mu-R;
-    E = @(theta) R + A*exp(1i*theta);
-    dEdt = @(theta) 1i*A*exp(1i*theta);
+    vp = invertvp(solver,nm,mu,v1,vL1,vR1,v2,vL2,vR2,AbsTol);
 
-    tic;
-    nm = integral(@(theta) dens(E(theta),v1+v2,vL1+vL2,vR1+vR2)*dEdt(theta),0,pi,...
-                'ArrayValued',true,...
-                'RelTol',RelTol,...
-                'AbsTol',AbsTol);
-    nm = nm+conj(nm);
-    toc;
-
-    tic;
-    vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2,AbsTol);
-    toc;
-
-    tic;
-    n1 = integral(@(theta) dens(E(theta),v1+vp,vL1,vR1)*dEdt(theta),0,pi,...
-                'ArrayValued',true,...
-                'RelTol',RelTol,...
-                'AbsTol',AbsTol);
-    n1 = n1+conj(n1);
-    toc;
-
-    tic;
-    n2 = integral(@(theta) dens(E(theta),v2+vp,vL2,vR2)*dEdt(theta),0,pi,...
-                'ArrayValued',true,...
-                'RelTol',RelTol,...
-                'AbsTol',AbsTol);
-    n2 = n2+conj(n2);
-    toc;
+    n1 = solver(mu,v1+vp,vL1,vR1);
+    n2 = solver(mu,v2+vp,vL2,vR2);
     nf = n1+n2;
     
-        
     Check = nf-nm;
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',1e-10);
-
 
 end

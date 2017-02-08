@@ -12,46 +12,14 @@ vdiff = cos(x)/6;
 vL = 0;
 vR = 0;
 
-shoot = solver_fh(Nelem,dx);
+solver = solver_fh(Nelem,dx);
 
-dens = @(E,v) ldos(shoot(E,v,vL,vR));
-resp = @(E,v) response(shoot(E,v,vL,vR));
-
-E0 = min(v+vdiff)-1;
 mu = -.25;
+n = solver(mu,v+vdiff,vL,vR);
+n0 = solver(mu,v,vL,vR);
 
-R = (E0+mu)/2;
-A = mu-R;
-E = @(theta) R + A*exp(1i*theta);
-dEdt = @(theta) 1i*A*exp(1i*theta);
-
-tic;
-n = integral(@(theta) dens(E(theta),v+vdiff)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-n = n+conj(n);
-toc;
-
-tic;
-n0 = integral(@(theta) dens(E(theta),v)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-n0 = n0+conj(n0);
-toc;
-
-tic;
-vinv = invert(dx,n,mu,v,vL,vR,eps);
-toc;
-
-tic;
-ninv = integral(@(theta) dens(E(theta),vinv)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-ninv = ninv+conj(ninv);
-toc;
+vinv = invert(solver,n,mu,v,vL,vR,eps);
+ninv = solver(mu,vinv,vL,vR);
 
 subplot(2,2,1);
 plot(x,[n,ninv,n0]);
@@ -68,7 +36,7 @@ xlim([min(x),max(x)]);
 title('potential');
 
 subplot(2,2,4);
-plot(x,[vinv-(v+vdiff)]);
+plot(x,vinv-(v+vdiff));
 
 xlim([min(x),max(x)]);
 

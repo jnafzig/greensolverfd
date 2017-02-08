@@ -14,39 +14,13 @@ function testInvert1( testCase )
     vL = -1;
     vR = 0;
 
-    shoot = solver_fh(Nelem,dx);
+    solver = solver_fh(Nelem,dx);
 
-    dens = @(E,v) ldos(shoot(E,v,vL,vR));
-    resp = @(E,v) response(shoot(E,v,vL,vR));
-
-    E0 = min(v)-1;
     mu = -.25;
-    kf = sqrt(-2*mu);
+    n = solver(mu,v,vL,vR);
 
-    R = (E0+mu)/2;
-    A = mu-R;
-    E = @(theta) R + A*exp(1i*theta);
-    dEdt = @(theta) 1i*A*exp(1i*theta);
-
-    tic;
-    n = integral(@(theta) dens(E(theta),v)*dEdt(theta),0,pi,...
-                'ArrayValued',true,...
-                'RelTol',RelTol,...
-                'AbsTol',AbsTol);
-    n = n+conj(n);
-    toc;
-
-    tic;
-    vinv = invert(dx,n,mu,v+vdiff,vL,vR,AbsTol);
-    toc;
-
-    tic;
-    ninv = integral(@(theta) dens(E(theta),vinv)*dEdt(theta),0,pi,...
-                'ArrayValued',true,...
-                'RelTol',RelTol,...
-                'AbsTol',AbsTol);
-    ninv = ninv+conj(ninv);
-    toc;
+    vinv = invert(solver,n,mu,v+vdiff,vL,vR,AbsTol);
+    ninv = solver(mu,vinv,vL,vR);
     
     Check = ninv-n;
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',1e-10);

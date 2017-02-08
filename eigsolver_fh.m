@@ -1,7 +1,6 @@
 function [ solver_fh ] = eigsolver_fh(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
-    
 
     % Schrodinger equation is eig problem is H*phi = E*phi,
     % We consider a vector x = [phi,dphi] then our first eq

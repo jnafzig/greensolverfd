@@ -1,5 +1,5 @@
-function  v  = invertvpmixed( dx, n0, mu, v1, vL1, vR1, N2, v2, TolFun)
-    if nargin < 9
+function  v  = invertvpmixed( solver, bssolver, n0, mu, v1, vL1, vR1, N2, v2, TolFun)
+    if nargin < 10
         TolFun = 1e-6;
     end
     
@@ -13,28 +13,14 @@ function  v  = invertvpmixed( dx, n0, mu, v1, vL1, vR1, N2, v2, TolFun)
     
     RelTol = eps;
     AbsTol = eps;
-    
-    Nelem = numel(n0);
-    shoot = solver_fh(Nelem,dx);
-    bssolver = boundstatesolver_fh(Nelem,dx);
 
-    dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
-    resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
-
-    E0 = min(v1+v2)-1;
-
-    R = (E0+mu)/2;
-    A = mu-R; 
-    E = @(theta) R + A*exp(1i*theta);
-    dEdt = @(theta) 1i*A*exp(1i*theta);
-
-    v = zeros(Nelem,1);
+    v0 = zeros(size(n0));
 
     options = optimoptions('fsolve',...
         'Jacobian','on',...
         'TolFun',TolFun,...
         'Display','iter');
-    v = fsolve(@eqn,v,options);
+    v = fsolve(@eqn,v0,options);
     
 %    
 %     fprintf(' iter     res_ncon        res_Ncon\n');
@@ -65,18 +51,7 @@ function  v  = invertvpmixed( dx, n0, mu, v1, vL1, vR1, N2, v2, TolFun)
     
     function [err,grad] = eqn(vp)
 
-        n1 = integral(@(theta) dens(E(theta),v1+vp,vL1+vpL,vR1+vpR)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-        n1 = n1+conj(n1);
-        
-        grad1 = dx*integral(@(theta) resp(E(theta),v1+vp,vL1+vpL,vR1+vpR)*dEdt(theta),0,pi,...
-                    'ArrayValued',true,...
-                    'RelTol',1e-1,...
-                    'AbsTol',1e-1);
-        grad1 = grad1+conj(grad1);
-        
+        [n1,grad1] = solver(mu,v1+vp,vL1+vpL,vR1+vpR);
         [n2,grad2] = bssolver(N2,v2+vp);
         
         err = n1+n2-n0;
