@@ -13,7 +13,7 @@ function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2, TolFun)
     AbsTol = eps;
     
     Nelem = numel(n0);
-    shoot = solver(Nelem,dx);
+    shoot = solver_fh(Nelem,dx);
 
     dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
     resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));

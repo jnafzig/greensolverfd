@@ -16,7 +16,7 @@ vR1 = 0;
 vL2 = 0;
 vR2 = 0;
 
-shoot = solver(Nelem,dx);
+shoot = solver_fh(Nelem,dx);
 
 dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
 resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));

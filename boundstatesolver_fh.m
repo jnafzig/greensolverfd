@@ -1,10 +1,9 @@
-function [ solver_fh ] = boundstatesolver(Nelem, dx)
+function [ solver_fh ] = boundstatesolver_fh(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
     %
     % Returns a handle to a function which can provide density and response
     %
-    
 
     % Schrodinger equation is eig problem is H*phi = E*phi,
     % We consider a vector x = [phi,dphi] then our first eq
@@ -30,9 +29,9 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
     D1dphi = (spdiags(repmat(coeff',[Nelem,1]), 0:1,Nelem,Nelem+1)); 
 
     % Boundary conditions: 
-    % dphi(1) = k*phi(1) and dphi(end) = k*phi(end)
+    % dphi(1) = k*phi(1) and dphi(end) = -k*phi(end)
     bc_lhs = [zeros(2,Nelem),[[1,zeros(1,Nelem)];...
-                           [zeros(1,Nelem),1]]];
+                             [zeros(1,Nelem),1]]];
     bc_rhs = [[[1,zeros(1,Nelem-1)];...
               [zeros(1,Nelem-1),-1]],zeros(2,Nelem+1)];
 
@@ -50,9 +49,9 @@ function [ solver_fh ] = boundstatesolver(Nelem, dx)
     [ival,jval] = find(A2);
 
     % return function handle
-    solver_fh = @(N,v) eigsolve(N,v);
+    solver_fh = @(N,v) densitysolve(N,v);
 
-    function [n,response] = eigsolve(N,v)
+    function [n,response] = densitysolve(N,v)
         matV = sparse(ival,jval,-2*v,2*Nelem+1,2*Nelem+1,Nelem);
 
         A = blkdiag(A0+matV,speye(2*Nelem+1));

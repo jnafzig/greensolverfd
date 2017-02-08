@@ -13,7 +13,7 @@ function testPoschlTeller( testCase )
     vL = 0;
     vR = 0;
 
-    shoot = solver(Nelem,dx);
+    shoot = solver_fh(Nelem,dx);
     wron = @(E) mean(wronskian(shoot(E,v,vL,vR)));
 
     E0 = fzero(wron,-.5);

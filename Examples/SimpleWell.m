@@ -14,7 +14,7 @@ v = -cosh(x).^-2;
 vL = 0;
 vR = 0;
 
-shoot = solver(Nelem,dx);
+shoot = solver_fh(Nelem,dx);
 
 dens = @(E) ldos(shoot(E,v,vL,vR));
 green = @(E) greens(shoot(E,v,vL,vR));

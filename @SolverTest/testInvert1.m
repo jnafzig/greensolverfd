@@ -14,7 +14,7 @@ function testInvert1( testCase )
     vL = -1;
     vR = 0;
 
-    shoot = solver(Nelem,dx);
+    shoot = solver_fh(Nelem,dx);
 
     dens = @(E,v) ldos(shoot(E,v,vL,vR));
     resp = @(E,v) response(shoot(E,v,vL,vR));

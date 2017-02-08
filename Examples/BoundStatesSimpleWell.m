@@ -13,9 +13,9 @@ v = -10*cosh(x).^-2;
 vL = 0;
 vR = 0;
 
-shoot = solver(Nelem,dx);
-boundstates = eigsolver(Nelem,dx);
-bssolver = boundstatesolver(Nelem,dx);
+shoot = solver_fh(Nelem,dx);
+boundstates = eigsolver_fh(Nelem,dx);
+bssolver = boundstatesolver_fh(Nelem,dx);
 dens = @(E) ldos(shoot(E,v,vL,vR));
 
 N = 4;

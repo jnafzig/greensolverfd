@@ -34,7 +34,7 @@ function testResponse( testCase )
         vL = 0;
         vR = 0;
 
-        shoot = solver(Nelem,dx);
+        shoot = solver_fh(Nelem,dx);
 
         chi = response(shoot(E,v,vL,vR));
 

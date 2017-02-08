@@ -1,4 +1,4 @@
-function [ solver_fh ] = eigsolver(Nelem, dx)
+function [ solver_fh ] = eigsolver_fh(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
     

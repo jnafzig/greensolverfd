@@ -1,4 +1,4 @@
-function testResponse( testCase )
+function testFixedNvsFixedmu( testCase )
     %TESTRESPONSE test whether fixed mu calculation matches density of
     %fixed N calculation
     
@@ -15,8 +15,8 @@ function testResponse( testCase )
     vL = 0;
     vR = 0;
 
-    shoot = solver(Nelem,dx);
-    bssolver = boundstatesolver(Nelem,dx);
+    shoot = solver_fh(Nelem,dx);
+    bssolver = boundstatesolver_fh(Nelem,dx);
     dens = @(E) ldos(shoot(E,v,vL,vR));
 
     N = 4;

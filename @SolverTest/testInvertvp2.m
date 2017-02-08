@@ -21,7 +21,7 @@ function testInvertvp2( testCase )
     vR2 = 0;
     v2 = -cosh(x-R).^-2;
 
-    shoot = solver(Nelem,dx);
+    shoot = solver_fh(Nelem,dx);
 
     dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
     resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));

@@ -13,11 +13,15 @@ function  v  = invert( dx, n0, mu, v0, vL, vR, TolFun )
     AbsTol = eps;
     
     Nelem = numel(n0);
-    shoot = solver(Nelem,dx);
+    shoot = solver_fh(Nelem,dx);
 
     dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
     resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
 
+% Combining density and response integrals apparently doesn't speed things 
+% up, but this is part of the code to do that: 
+%     dens_resp = @(E,v,vL,vR) density_response(shoot(E,v,vL,vR));
+    
     E0 = min(v0)-1;
 
     R = (E0+mu)/2;
@@ -31,6 +35,9 @@ function  v  = invert( dx, n0, mu, v0, vL, vR, TolFun )
         'Display','iter');
     v = fsolve(@eqn,v0,options);
 
+%
+% This is the code to do a manual newton-raphson search instead of fsolve
+%
 %     v = v0;
 %     fprintf(' iter     res_ncon        res_Ncon\n');
 %     fprintf(' -----------------------------------------\n');
@@ -62,6 +69,21 @@ function  v  = invert( dx, n0, mu, v0, vL, vR, TolFun )
                     'AbsTol',1e-1);
         grad = grad+conj(grad);
 
+%
+% Combining density and response integrals apparently doesn't speed things 
+% up, but this is part of the code to do that.  My guess is that if we
+% built our own integration scheme they could be combined more efficiently
+% but it is probably not worth doing that.
+%    
+%         ngrad = integral(@(theta) dens_resp(E(theta),v,vL+vsL,vR+vsR)*dEdt(theta),0,pi,...
+%                     'ArrayValued',true,...
+%                     'RelTol',RelTol,...
+%                     'AbsTol',AbsTol);
+%         ngrad = ngrad+conj(ngrad);
+% 
+%         n = ngrad(:,1);
+%         grad = dx*ngrad(:,2:end);
+        
         err = n-n0;
         
     end
