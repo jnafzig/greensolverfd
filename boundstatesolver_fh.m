@@ -52,11 +52,14 @@ function [ solver_fh ] = boundstatesolver_fh(Nelem, dx)
     solver_fh = @(N,v) densitysolve(N,v);
 
     function [n,response] = densitysolve(N,v)
+        Nbs = ceil(N); % number of bound states to calculate
+        Nfs = floor(N); % number of completely full states
+        
         matV = sparse(ival,jval,-2*v,2*Nelem+1,2*Nelem+1,Nelem);
 
         A = blkdiag(A0+matV,speye(2*Nelem+1));
         
-        [Evecs,kvals] = eigs(A,B,N,sqrt(abs(2*min(v))));
+        [Evecs,kvals] = eigs(A,B,Nbs,sqrt(abs(2*min(v))));
 
         % normalization
         int = (Evecs(1,:).^2+Evecs(Nelem,:).^2)/(2*kvals);
@@ -67,11 +70,12 @@ function [ solver_fh ] = boundstatesolver_fh(Nelem, dx)
         Lvecs(1,:) = Lvecs(1,:) + Lvecs(1,:)/(2*kvals*dx);
         Lvecs(Nelem,:) = Lvecs(Nelem,:) + Lvecs(Nelem,:)/(2*kvals*dx);
         
-        n = sum(Evecs(1:Nelem,:).^2,2);
+        n = sum(Evecs(1:Nelem,1:Nfs).^2,2) ...
+            + (N-Nfs)*Evecs(1:Nelem,end).^2;
         
         if nargout>1
             response = zeros(Nelem);
-            for i = 1:N
+            for i = 1:Nbs
                 Evec = Evecs(:,i);
                 Lvec = Lvecs(:,i);
                 kval = kvals(i,i);
@@ -84,11 +88,16 @@ function [ solver_fh ] = boundstatesolver_fh(Nelem, dx)
                 
                 dvecdv = (lhs\rhs);
                 
-                response = response + dndvec1*dvecdv ...
+                if i<=Nfs
+                    scale = 1;
+                else
+                    scale = N-Nfs;
+                end
+                response = response + scale*(dndvec1*dvecdv ...
                     - 2*dx*Evec(1:Nelem).^2*(Evec(1:Nelem)'*dvecdv(1:Nelem,:)) ...
                     - Evec(1)/kval*Evec(1:Nelem).^2*dvecdv(1,:) ...
                     - Evec(Nelem)/kval*Evec(1:Nelem).^2*dvecdv(Nelem,:) ...
-                    - Evec(1:Nelem).^2*(Evec(1)^2+Evec(Nelem)^2)/kval^2/2*dvecdv(end,:);
+                    - Evec(1:Nelem).^2*(Evec(1)^2+Evec(Nelem)^2)/kval^2/2*dvecdv(end,:));
             end
             
         end

@@ -16,6 +16,7 @@ function  v  = invertboundstate( bssolver, n0, N, v0, TolFun )
         'TolFun',TolFun,...
         'Display','iter');
     v = fsolve(@eqn,v0,options);
+    
 %    
 %     fprintf(' iter     res_ncon        res_Ncon\n');
 %     fprintf(' -----------------------------------------\n');
@@ -33,8 +34,6 @@ function  v  = invertboundstate( bssolver, n0, N, v0, TolFun )
 %         fprintf('   %i    %e    %e\n',iter,optimality,sum(err));
 %         iter = iter+1;   
 %     end
-
-    
     
     function [err,grad] = eqn(v)
         

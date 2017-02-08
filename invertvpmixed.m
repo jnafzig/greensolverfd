@@ -1,10 +1,12 @@
-function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2, TolFun)
-    if nargin < 10
+function  v  = invertvpmixed( dx, n0, mu, v1, vL1, vR1, N2, v2, TolFun)
+    if nargin < 9
         TolFun = 1e-6;
     end
     
-    %INVERT tries to find v such that v -> n0 at a chemical potential mu
-
+    %INVERTVPMIXED tries to find find vp for cases where on fragment is
+    % fixed by chemical potential and the other is fixed by occupation
+    % number.
+    
     vpR = 0; % currently the partition potential is assumed to be zero 
     vpL = 0; % outside the gridded region.  For now vpR and vpL can be 
              % adjusted manually to play around with that assumption.
@@ -14,6 +16,7 @@ function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2, TolFun)
     
     Nelem = numel(n0);
     shoot = solver_fh(Nelem,dx);
+    bssolver = boundstatesolver_fh(Nelem,dx);
 
     dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
     resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
@@ -68,24 +71,14 @@ function  v  = invertvp( dx, n0, mu, v1, vL1, vR1, v2, vL2, vR2, TolFun)
             'AbsTol',AbsTol);
         n1 = n1+conj(n1);
         
-        n2 = integral(@(theta) dens(E(theta),v2+vp,vL2+vpL,vR2+vpR)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-        n2 = n2+conj(n2);
-
         grad1 = dx*integral(@(theta) resp(E(theta),v1+vp,vL1+vpL,vR1+vpR)*dEdt(theta),0,pi,...
                     'ArrayValued',true,...
                     'RelTol',1e-1,...
                     'AbsTol',1e-1);
         grad1 = grad1+conj(grad1);
         
-        grad2 = dx*integral(@(theta) resp(E(theta),v2+vp,vL2+vpL,vR2+vpR)*dEdt(theta),0,pi,...
-                    'ArrayValued',true,...
-                    'RelTol',1e-1,...
-                    'AbsTol',1e-1);
-        grad2 = grad2+conj(grad2);
-
+        [n2,grad2] = bssolver(N2,v2+vp);
+        
         err = n1+n2-n0;
         
         grad = grad1+grad2;

@@ -18,6 +18,7 @@ vL2 = 0;
 vR2 = 0;
 
 shoot = solver_fh(Nelem,dx);
+bssolver = boundstatesolver_fh(Nelem,dx);
 
 dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
 resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
@@ -37,7 +38,9 @@ nm = integral(@(theta) dens(E(theta),v1+v2,vL1+vL2,vR1+vR2)*dEdt(theta),0,pi,...
             'AbsTol',AbsTol);
 nm = nm+conj(nm);
 
-vp = invertvp(dx,nm,mu,v1,vL1,vR1,v2,vL2,vR2,eps);
+N2 = 1;
+
+vp = invertvpmixed(dx,nm,mu,v1,vL1,vR1,N2,v2,eps);
 
 n1 = integral(@(theta) dens(E(theta),v1+vp,vL1,vR1)*dEdt(theta),0,pi,...
             'ArrayValued',true,...
@@ -45,11 +48,7 @@ n1 = integral(@(theta) dens(E(theta),v1+vp,vL1,vR1)*dEdt(theta),0,pi,...
             'AbsTol',AbsTol);
 n1 = n1+conj(n1);
 
-n2 = integral(@(theta) dens(E(theta),v2+vp,vL2,vR2)*dEdt(theta),0,pi,...
-            'ArrayValued',true,...
-            'RelTol',RelTol,...
-            'AbsTol',AbsTol);
-n2 = n2+conj(n2);
+n2 = bssolver(N2,v2+vp);
 
 nf = n1+n2;
 
