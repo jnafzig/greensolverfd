@@ -1,24 +1,27 @@
-function [ solver_fh ] = solver_fh(Nelem, dx)
-    
-    RelTol = eps;
-    AbsTol = eps;
+function [ solver_fh ] = solver_fh(Nelem, dx, RelTol,AbsTol)
+    if nargin<3
+        RelTol = eps;
+    end
+    if nargin<4
+        AbsTol = eps;
+    end
     
     shoot = shoot_fh(Nelem,dx);
     dens = @(E,v,vL,vR) ldos(shoot(E,v,vL,vR));
     resp = @(E,v,vL,vR) response(shoot(E,v,vL,vR));
     
     % return function handle
-    solver_fh = @(mu,v,vL,vR) densitysolve(mu,v,vL,vR);
+    solver_fh = @densitysolve;
 
     function [n,response] = densitysolve(mu,v,vL,vR)
         
         E0 = min(v)-1;
 
-        R = (E0+mu)/2;
+        R = (E0+mu)/2; 
         A = mu-R; 
         E = @(theta) R + A*exp(1i*theta);
-        dEdt = @(theta) 1i*A*exp(1i*theta);
-
+        dEdt = @(theta) 1i*A*exp(1i*theta); 
+ 
         n = integral(@(theta) dens(E(theta),v,vL,vR)*dEdt(theta),0,pi,...
             'ArrayValued',true,...
             'RelTol',RelTol,...

@@ -19,13 +19,13 @@ function testInvert1( testCase )
     mu = -.25;
     n = solver(mu,v,vL,vR);
 
-    vinv = invert(solver,n,mu,v+vdiff,vL,vR,AbsTol);
-    ninv = solver(mu,vinv,vL,vR);
+    vinv = invert({solver},n,mu,v+vdiff,vL,vR,AbsTol);
+    ninv = solver(mu,vinv+v+vdiff,vL,vR);
     
     Check = ninv-n;
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',1e-10);
     
-    Check = vinv-v;
+    Check = vinv+vdiff;
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',1e-10);
 
 end

@@ -1,6 +1,4 @@
-
-RelTol = eps;
-AbsTol = eps;
+clear;
 
 A = -15;
 B = 10;
@@ -8,25 +6,25 @@ Nelem = 400;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
 
-vL1 = -1;
-vR1 = 0;
+vLi = [-1,0];
+vRi = [0,0];
 R = 2;
 v1 = zeros(Nelem,1);
-v1(x<0) = vL1;
-
-N2 = 1;
+v1(x<0) = vLi(1);
 v2 = -cosh(x-R).^-2;
+vi = [v1,v2];
 
 solver = solver_fh(Nelem,dx);
 bssolver = boundstatesolver_fh(Nelem,dx);
 
 mu = -.25;
-nm = solver(mu,v1+v2,vL1+vL2,vR1+vR2);
+nm = solver(mu,v1+v2,sum(vLi),sum(vRi));
+N = 1;
 
-vp = invertvpmixed(solver,bssolver,nm,mu,v1,vL1,vR1,N2,v2,eps);
+vp = invert({solver,bssolver},nm,[mu,N],vi,vLi,vRi,eps);
 
-n1 = solver(mu,v1+vp,vL1,vR1);
-n2 = bssolver(N2,v2+vp);
+n1 = solver(mu,v1+vp,vLi(1),vRi(1));
+n2 = bssolver(N,v2+vp);
 
 nf = n1+n2;
 

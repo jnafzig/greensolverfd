@@ -53,7 +53,7 @@ function [ solver_fh ] = solver_fh(Nelem, dx)
        
     [ival,jval] = find(matVE);
     
-    solver_fh = @(E,v,vL,vR) shoot(E,v,vL,vR);
+    solver_fh = @shoot;
 
     function [solution] = shoot(E,v,vL,vR)
         

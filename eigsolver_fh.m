@@ -46,7 +46,7 @@ function [ solver_fh ] = eigsolver_fh(Nelem, dx)
     [ival,jval] = find(A2);
 
     % return function handle
-    solver_fh = @(N,v) eigsolve(N,v);
+    solver_fh = @eigsolve;
 
     function [Evals,Evecs] = eigsolve(N,v)
         matV = sparse(ival,jval,-2*v,2*Nelem+1,2*Nelem+1,Nelem);

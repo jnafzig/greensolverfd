@@ -1,7 +1,4 @@
-tic;
-
-RelTol = eps;
-AbsTol = eps;
+clear;
 
 A = -6;
 B = 6;
@@ -12,14 +9,17 @@ dx = x(2)-x(1);
 R = 3;
 v1 = -cosh(x+R/2).^-2;
 v2 = -cosh(x-R/2).^-2;
+vi = [v1,v2];
+vLi = [0,0];
+vRi = [0,0];
 
 bssolver = boundstatesolver_fh(Nelem,dx);
 
 N1 = 1;
 N2 = 1;
-nm = bssolver(N1+N2,v1+v2);
+nm = bssolver(N1+N2,sum(vi,2));
 
-vp = invertvpboundstate(bssolver,nm,N1,v1,N2,v2,eps);
+vp = invert({bssolver,bssolver},nm,[N1,N2],vi,[0,0],[0,0],eps);
 
 n1 = bssolver(N1,v1+vp);
 n2 = bssolver(N2,v2+vp);
@@ -53,5 +53,3 @@ plot(x,nf-nm);
 xlim([min(x),max(x)]);
 
 title('density error');
-
-toc;

@@ -23,8 +23,8 @@ function testInvert2( testCase )
     n2 = solver(mu,v2,vL,vR);
     nf = n1+n2;
 
-    vinv = invert(solver,nf,mu,v1+v2,vL,vR,AbsTol);
-    ninv = solver(mu,vinv,vL,vR);
+    vinv = invert({solver},nf,mu,v1+v2,vL,vR,AbsTol);
+    ninv = solver(mu,vinv+v1+v2,vL,vR);
     
     Check = ninv-nf;
     testCase.verifyEqual(max(abs(Check)),0,'AbsTol',1e-10);
