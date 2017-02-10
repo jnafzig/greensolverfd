@@ -52,6 +52,11 @@ function [ solver_fh ] = boundstatesolver_fh(Nelem, dx)
     solver_fh = @densitysolve;
 
     function [n,response] = densitysolve(N,v,~,~)
+        if N == 0
+            n = zeros(Nelem,1);
+            response = zeros(Nelem);
+            return;
+        end
         Nbs = ceil(N); % number of bound states to calculate
         Nfs = floor(N); % number of completely full states
         

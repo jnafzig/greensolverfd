@@ -48,12 +48,13 @@ function [ solver_fh ] = eigsolver_fh(Nelem, dx)
     % return function handle
     solver_fh = @eigsolve;
 
-    function [Evals,Evecs] = eigsolve(N,v)
+    function [Evals,Evecs] = eigsolve(N,v,~,~)
+        if N == 0; N = 1; end;
         matV = sparse(ival,jval,-2*v,2*Nelem+1,2*Nelem+1,Nelem);
 
         A = blkdiag(A0+matV,speye(2*Nelem+1));
         
-        [Evecs,kvals] = eigs(A,B,N,sqrt(abs(2*min(v))));
+        [Evecs,kvals] = eigs(A,B,ceil(N),sqrt(abs(2*min(v))));
         Evals = -diag(kvals).^2/2;
     end
     
