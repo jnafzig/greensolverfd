@@ -21,7 +21,7 @@ green = @(E) greens(shoot(E,v,vL,vR));
 resp = @(E) response(shoot(E,v,vL,vR));
 
 E0 = min(v)-1;
-mu = -.25;
+mu = -.5;
 kf = sqrt(-2*mu);
 
 R = (E0+mu)/2;

@@ -1,4 +1,4 @@
-function [ solver_fh ] = solver_fh(Nelem, dx)
+function [ shoot_fh ] = shoot_fh(Nelem, dx)
     %SOLVER_FH provides function handle for solver function
     %
     % Solver method shoots solutions from both left and right boundaries. 
@@ -53,30 +53,35 @@ function [ solver_fh ] = solver_fh(Nelem, dx)
        
     [ival,jval] = find(matVE);
     
-    solver_fh = @shoot;
+    shoot_fh = @shoot;
 
     function [solution] = shoot(E,v,vL,vR)
         
         matVE = sparse(ival,jval,2*(E-v),2*Nelem+1,2*Nelem+1,Nelem);
 
-        kL = sqrt(2*(E-vL));
+%         kL = sqrt(2*(E-vL));
+        kL = acos(1-(E-vL)*dx^2)/dx;
         if imag(kL)<0; kL = -kL; end  % ensure we choose the sqrt with 
                                       % negative imaginary part
         
         % first two elements of rhs are specifying boundary conditions for
         % phi and dphi.
-        rhsL = [1;-1i*kL;zeros(2*Nelem-1,1)];
+%         rhsL = [1;-1i*kL;zeros(2*Nelem-1,1)];
+        rhsL = [1;(1-exp(1i*kL*dx))/dx;zeros(2*Nelem-1,1)];
+        
         lhsL = matL+matVE;
         solL = lhsL\rhsL;
         phiL = solL(1:Nelem);
         dphiL = D0*solL((1:Nelem+1)+Nelem);
         
         % Same but for right boundary condition.
-        kR = sqrt(2*(E-vR)); 
+%         kR = sqrt(2*(E-vR)); 
+        kR = acos(1-(E-vR)*dx^2)/dx;
         if imag(kR)<0; kR = -kR; end
         
         lhsR = matR+matVE;
-        rhsR = [1;1i*kR;zeros(2*Nelem-1,1)]; 
+%         rhsR = [1;1i*kR;zeros(2*Nelem-1,1)]; 
+        rhsR = [1;-(1-exp(1i*kR*dx))/dx;zeros(2*Nelem-1,1)];
         solR = lhsR\rhsR;
         phiR = solR(1:Nelem);
         dphiR = D0*solR((1:Nelem+1)+Nelem);
