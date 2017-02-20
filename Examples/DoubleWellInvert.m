@@ -2,7 +2,7 @@ clear;
 
 A = -6;
 B = 6;
-Nelem = 100;
+Nelem = 500;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
 

@@ -43,12 +43,11 @@ function [ shoot_fh ] = shoot_fh(Nelem, dx)
     % matVE matrix.
     matL = [bcL;...
            [D1,-MID];...
-           [zeros(Nelem),D1dphi]];
+           [sparse(Nelem,Nelem),D1dphi]];
     matR = [bcR;...
            [D1,-MID];...
-           [zeros(Nelem),D1dphi]];
+           [sparse(Nelem,Nelem),D1dphi]];
 
-    
     matVE =  spdiags(ones(Nelem,1),-Nelem-1,2*Nelem+1,2*Nelem+1);
        
     [ival,jval] = find(matVE);
@@ -60,15 +59,17 @@ function [ shoot_fh ] = shoot_fh(Nelem, dx)
         matVE = sparse(ival,jval,2*(E-v),2*Nelem+1,2*Nelem+1,Nelem);
 
 %         kL = sqrt(2*(E-vL));
-        kL = acos(1-(E-vL)*dx^2)/dx;
-        if imag(kL)<0; kL = -kL; end  % ensure we choose the sqrt with 
+%         kL = acos(1-(E-vL)*dx^2)/dx;
+%         if imag(kL)<0; kL = -kL; end  % ensure we choose the sqrt with 
                                       % negative imaginary part
         
         % first two elements of rhs are specifying boundary conditions for
         % phi and dphi.
 %         rhsL = [1;-1i*kL;zeros(2*Nelem-1,1)];
-        rhsL = [1;(1-exp(1i*kL*dx))/dx;zeros(2*Nelem-1,1)];
-        
+%         rhsL = [1;(1-exp(1i*kL*dx))/dx;zeros(2*Nelem-1,1)];
+%         rhsL = [1;dx*(E-vL)-1i*sqrt((E-vL)*2 -dx^2*(E-vL)^2);zeros(2*Nelem-1,1)];
+        rhsL = [1;dx*(E-vL)-1i*sqrt(2*(E-vL));zeros(2*Nelem-1,1)];
+                
         lhsL = matL+matVE;
         solL = lhsL\rhsL;
         phiL = solL(1:Nelem);
@@ -76,17 +77,21 @@ function [ shoot_fh ] = shoot_fh(Nelem, dx)
         
         % Same but for right boundary condition.
 %         kR = sqrt(2*(E-vR)); 
-        kR = acos(1-(E-vR)*dx^2)/dx;
-        if imag(kR)<0; kR = -kR; end
+%         kR = acos(1-(E-vR)*dx^2)/dx;
+%         if imag(kR)<0; kR = -kR; end
         
         lhsR = matR+matVE;
 %         rhsR = [1;1i*kR;zeros(2*Nelem-1,1)]; 
-        rhsR = [1;-(1-exp(1i*kR*dx))/dx;zeros(2*Nelem-1,1)];
+%         rhsR = [1;-(1-exp(1i*kR*dx))/dx;zeros(2*Nelem-1,1)];
+%         rhsR = [1;-dx*(E-vR)+1i*sqrt((E-vR)*2-dx^2*(E-vR)^2);zeros(2*Nelem-1,1)];
+        rhsR = [1;-dx*(E-vR)+1i*sqrt(2*(E-vR));zeros(2*Nelem-1,1)];
         solR = lhsR\rhsR;
         phiR = solR(1:Nelem);
         dphiR = D0*solR((1:Nelem+1)+Nelem);
         
         solution = [phiL,dphiL,phiR,dphiR];
+        
+
 
     end
 end
