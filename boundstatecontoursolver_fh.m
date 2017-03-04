@@ -60,50 +60,36 @@ function [ solver_fh ] = boundstatecontoursolver_fh(Nelem, dx, RelTol,AbsTol)
 
     function [Evals,Evecs] = eigsolve(N,v,vL,vR)
 
-%         b = rand(2*Nelem+1,N);
-        b = rand(Nelem,N);
+        b = rand(Nelem,N)-1/2;
         minE = min(v)-1;
         maxE = min(vL,vR)-.25;
-%         
+
         E0 = (maxE+minE)/2; 
         R = (maxE-minE)/2; 
         E = @(theta) E0 + R*exp(1i*theta);
         dEdt = @(theta) 1i*R*exp(1i*theta); 
 
         shoot = shoot_fh(Nelem,dx);
-        green = @(E) greens(shoot(E,v,vL,vR));
+        greenmult = @(E) greens_multiply(shoot(E,v,vL,vR),b);
 
-        T0 = integral(@(theta) (green(E(theta))*b)*dEdt(theta),0,pi,...
+        T0 = integral(@(theta) ((greenmult(E(theta)))*dEdt(theta)),0,pi,...
             'ArrayValued',true,...
             'RelTol',RelTol,...
             'AbsTol',AbsTol);
         T0 = T0 + conj(T0);
+%         T0 = 2*real(T0);
         
-        T1 = integral(@(theta) E(theta)*(green(E(theta))*b)*dEdt(theta),0,pi,...
+        T1 = integral(@(theta) E(theta)*(greenmult(E(theta)))*dEdt(theta),0,pi,...
             'ArrayValued',true,...
             'RelTol',RelTol,...
             'AbsTol',AbsTol);
         T1 = T1 + conj(T1);
         
-        
-%         T0 = 1i*integral(@(theta) (T(E(theta))\b)*dEdt(theta),0,pi,...
-%             'ArrayValued',true,...
-%             'RelTol',RelTol,...
-%             'AbsTol',AbsTol);
-%         T0 = T0 + conj(T0);
-%         
-%         T1 = 1i*integral(@(theta) E(theta)*(T(E(theta))\b)*dEdt(theta),0,pi,...
-%             'ArrayValued',true,...
-%             'RelTol',RelTol,...
-%             'AbsTol',AbsTol);
-%         T1 = T1 + conj(T1);
-%         
         [V,Sig,W] = svd(T0);
-%         
         B = (V(:,1:N)'*T1*W)/Sig(1:N,1:N);
-%         
+
         [s,Evals] = eig(B);
-%         
+
         Evecs = V(:,1:N)*s;
 %         
 %         function mat = T(E)
