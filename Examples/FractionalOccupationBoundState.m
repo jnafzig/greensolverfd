@@ -1,8 +1,8 @@
 clear;
 
-A = -8;
-B = 8;
-Nelem = 400;
+A = -12;
+B = 12;
+Nelem = 600;
 x = linspace(A,B,Nelem)';
 dx = x(2)-x(1);
 
@@ -11,10 +11,10 @@ v1 = -cosh(x+R/2).^-2;
 v2 = -cosh(x-R/2).^-2;
 vi = [v1,v2];
 
-bssolver = boundstatesolver_fh(Nelem,dx);
+bssolver = shootsolver_fh(Nelem,dx);
 
-N1 = .55;
-N2 = .55;
+N1 = .5;
+N2 = .5;
 Ni = [N1,N2];
 nm = bssolver(sum(Ni),sum(vi,2));
 

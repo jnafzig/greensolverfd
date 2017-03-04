@@ -13,7 +13,7 @@ vi = [v1,v2];
 vLi = [0,0];
 vRi = [0,0];
 
-bssolver = boundstatesolver_fh(Nelem,dx);
+bssolver = shootsolver_fh(Nelem,dx);
 
 N1 = 1;
 N2 = 1;

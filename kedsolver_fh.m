@@ -1,9 +1,12 @@
-function [ kedsolver_fh ] = kedsolver_fh(Nelem, dx, RelTol,AbsTol)
+function [ kedsolver_fh ] = kedsolver_fh(Nelem, dx, Tol)
+    % provides a handle to a function which can return density and kinetic
+    % energy density.  
     if nargin<3
         RelTol = eps;
-    end
-    if nargin<4
         AbsTol = eps;
+    else
+        RelTol = Tol;
+        AbsTol = Tol;
     end
     
     shoot = shoot_fh(Nelem,dx);

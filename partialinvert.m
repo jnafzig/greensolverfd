@@ -1,11 +1,13 @@
 function  v  = partialinvert( solver_array, n0, N_mu_array, vi, vLi, vRi,msk,TolFun)
-    %INVERT( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun)
+    %PARTIALINVERT( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun)
+    % Attempts to invert the density in the locations indicated by msk
     % solver_array -> Cell array of function handles to bound state or
     % continuum solvers.
     % n0 -> Target density
     % N_mu_array -> Array of occupation numbers, N, and chemical potentials
     % mu, of the same size as solver_array.  Values will be interpreted as
     % N or mu depending on function_handle in solver_array.
+    % msk -> logical array of the same size as n0
     
     if nargin < 8
         TolFun = 1e-6;
