@@ -1,9 +1,10 @@
-function [ solver_fh ] = solver_fh(Nelem, dx, RelTol,AbsTol)
+function [ solver_fh ] = solver_fh(Nelem, dx, Tol)
     if nargin<3
         RelTol = eps;
-    end
-    if nargin<4
         AbsTol = eps;
+    else
+        RelTol = Tol;
+        AbsTol = Tol;
     end
     
     shoot = shoot_fh(Nelem,dx);

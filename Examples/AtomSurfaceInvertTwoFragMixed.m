@@ -15,7 +15,7 @@ v2 = -cosh(x-R).^-2;
 vi = [v1,v2];
 
 solver = solver_fh(Nelem,dx);
-bssolver = boundstatesolver_fh(Nelem,dx);
+bssolver = quadsolver_fh(Nelem,dx);
 
 mu = -.25;
 nm = solver(mu,v1+v2,sum(vLi),sum(vRi));

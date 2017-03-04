@@ -1,4 +1,4 @@
-function [ solver_fh ] = shootsolver_fh(Nelem, dx)
+function [ solver_fh ] = shooteigsolver_fh(Nelem, dx)
     %SOLVER provides solver for boundstates via a shooting method
     %
     % Returns a handle to a function which can provide a requested numer of
@@ -34,26 +34,23 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
     % RHS operator
     A1 =  spdiags(2*ones(Nelem,1),-Nelem-1,2*Nelem+1,2*Nelem+1);
     [ival,jval] = find(A1);
-    
+
     shoot = shoot_fh(Nelem,dx);
     
     solver_fh = @shootsolve;
 
-    function [n,response] = shootsolve(N,v,vL,vR)
+    function [Evals,Evecs] = shootsolve(N,v,vL,vR)
         if nargin < 3
             vL = 0;
             vR = 0;
         end
-        % calculate scale factors
-        f = ones(ceil(N),1);
-        f(end) = 1+mod(N,-1);
         
         maxN = nodecount(shoot(min(vL,vR),v,vL,vR));
         assert(N<=maxN,'Max N is %i for this case',maxN);
         
         Emin = min(v);
-        n = zeros(Nelem,1);
-        response = zeros(Nelem);
+        Evals = zeros(ceil(N),1);
+        Evecs = zeros(Nelem,ceil(N));
         for i = 1:ceil(N)
             
             % use bisection to find a quick upperbound for state with i nodes
@@ -62,17 +59,17 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
  
             % find the boundstate between Emin and Emax 
             wron = @(E) mean(wronskian(shoot(E,v,vL,vR)));
-            [E,wronval] = fzero(wron,[Emin,Emax]);
+            [Evals(i),wronval] = fzero(wron,[Emin,Emax]);
           
             % updated Emin
             Emin = Emax;
             
             % get corresponding eigenvector
-            [solution] = shoot(E,v,vL,vR);
+            [solution] = shoot(Evals(i),v,vL,vR);
             phi = solution{1}(:,1);
             dphi = solution{2}(:,1);
             
-            X = [phi;dphi;E];
+            X = [phi;dphi;Evals(i)];
             
             % if wronval is not close enough to zero than do a step of
             % inverse iteration
@@ -89,33 +86,16 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
                 dX = lhs\rhs;
                 
                 X = X - dX;
+                Evals(i) = X(end);
+                phi = X(1:Nelem);
             end
             
             % normalize.  (normalization depends on energy)
             C = normfactor(X);
-            X = [X(1:end-1)/C^(1/2);X(end)];
+            Evecs(:,i) = phi/C^(1/2);
             
-            % add orbital contributions weighted by scale factor
-            ni = X(1:Nelem).^2;
-            n = n + f(i)*ni;
-            
-            if nargout > 1
-                % get derivative of normfactor with respect to X
-                [~,dCdX] = normfactor(X);
-
-                % construct our matrix and the derivative of that matrix with
-                % respect to E
-                [mat,dmatdE] = A(X(end));
-
-                lhs = [[mat,dmatdE*X(1:end-1)];dCdX];
-                rhs = sparse(ival,jval,2*X(1:Nelem),2*Nelem+2,Nelem,Nelem);
-
-                dXdv = lhs\rhs;              
-
-                response = response + f(i)*2*bsxfun(@times,X(1:Nelem),dXdv(1:Nelem,:));
-            end
         end
-        
+
         function [mat,dmatdE] = A(E)
 
             sqL = 1i*sqrt((E-vL)*2-dx^2*(E-vL)^2);
@@ -137,7 +117,7 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
 
             dmatdE = A1 + dmatBC;
         end
-        
+
         function [int,dintdX] = normfactor(X)
 
             E = X(end);

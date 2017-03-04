@@ -1,6 +1,5 @@
 function [ dn] = ldos(solution)
     %SOLUTION 
-%     solution = [phiL,dphiL,phiR,dphiR];
     
     phiL = solution{1}(:,1);
     dphiL = solution{2}(:,1);

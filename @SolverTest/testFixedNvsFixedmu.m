@@ -2,9 +2,8 @@ function testFixedNvsFixedmu( testCase )
     %TESTRESPONSE test whether fixed mu calculation matches density of
     %fixed N calculation
     
-    RelTol = eps;
-    AbsTol = eps;
-
+    Tol = eps;
+    
     A = -7;
     B = 7;
     Nelem = 100;
@@ -12,32 +11,20 @@ function testFixedNvsFixedmu( testCase )
     dx = x(2)-x(1);
 
     v = -10*cosh(x).^-2;
-    vL = 0;
-    vR = 0;
+    vL = 1;
+    vR = -.1;
 
-    shoot = shoot_fh(Nelem,dx);
-    bssolver = boundstatesolver_fh(Nelem,dx);
-    dens = @(E) ldos(shoot(E,v,vL,vR));
+    solver = solver_fh(Nelem,dx,Tol);
+    bssolver = shootsolver_fh(Nelem,dx);
 
     N = 4;
     tic;
-    nb = bssolver(N,v);
+    nb = bssolver(N,v,vL,vR);
     toc;
 
-    E0 = min(v)-1;
     mu = -.25;
-
-    R = (E0+mu)/2;
-    A = mu-R;
-    E = @(theta) R + A*exp(1i*theta);
-    dEdt = @(theta) 1i*A*exp(1i*theta);
-
     tic;
-    n = integral(@(theta) dens(E(theta))*dEdt(theta),0,pi,...
-                'ArrayValued',true,...
-                'RelTol',RelTol,...
-                'AbsTol',AbsTol);
-    n = n+conj(n);
+    n = solver(mu,v,vL,vR);
     toc;
     
     % The density should be the same whether calculated using bound states

@@ -20,7 +20,7 @@ function testBoundStateResponse( testCase )
         v1 = v - vdiff;
         v2 = v + vdiff;
 
-        bssolver = boundstatesolver_fh(Nelem,dx);
+        bssolver = quadsolver_fh(Nelem,dx);
 
         N = 1;
         tic;

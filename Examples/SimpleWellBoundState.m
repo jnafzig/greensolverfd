@@ -14,13 +14,19 @@ vL = 0;
 vR = 0;
 
 solver = solver_fh(Nelem,dx);
-bssolver = boundstatesolver_fh(Nelem,dx);
-boundstates = eigsolver_fh(Nelem,dx);
+bssolver = shootsolver_fh(Nelem,dx);
+shootbs = shooteigsolver_fh(Nelem,dx);
+contourbs = contoureigsolver_fh(Nelem,dx);
+quadbs = quadeigsolver_fh(Nelem,dx);
+
 
 N = 4;
 mu = -.25;
 
-[Evals,Evecs] = boundstates(N,v);
+% These routines do not use consistent normalization yet
+[Evals,Evecs] = shootbs(N,v);
+[Evalsc,Evecsc] = contourbs(N,v);
+[Evalsq,Evecsq] = quadbs(N,v);
 
 nb = bssolver(N,v);
 n = solver(mu,v,vL,vR);

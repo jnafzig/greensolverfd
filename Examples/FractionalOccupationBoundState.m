@@ -11,7 +11,7 @@ v1 = -cosh(x+R/2).^-2;
 v2 = -cosh(x-R/2).^-2;
 vi = [v1,v2];
 
-bssolver = boundstatesolver_fh(Nelem,dx);
+bssolver = shootsolver_fh(Nelem,dx);
 
 N1 = .5;
 N2 = .5;

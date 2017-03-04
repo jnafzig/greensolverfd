@@ -1,4 +1,4 @@
-function [ solver_fh ] = eigsolver_fh(Nelem, dx)
+function [ solver_fh ] = quadeigsolver_fh(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
     %
@@ -75,8 +75,8 @@ function [ solver_fh ] = eigsolver_fh(Nelem, dx)
         A = blkdiag(A0a+A0b,speye(2*Nelem+1));
         
         [Evecs,kvals] = eigs(A,B,ceil(N),sqrt(abs(2*min(v))));
-        
-        Evals = -kvals.^2/2;
+        Evecs = Evecs(1:Nelem,:);
+        Evals = -diag(kvals).^2/2;
         vL = 0;
         vR = 0;
         

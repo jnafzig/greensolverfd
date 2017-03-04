@@ -1,4 +1,4 @@
-function [ solver_fh ] = boundstatesolver_fh(Nelem, dx)
+function [ solver_fh ] = quadsolver_fh(Nelem, dx)
     %SOLVER provides solver for boundstates via a quadratic eigenvalue
     %solver recast as a linear eigenvalue problem.
     %

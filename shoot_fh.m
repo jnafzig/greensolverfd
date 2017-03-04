@@ -16,9 +16,6 @@ function [ shoot_fh ] = shoot_fh(Nelem, dx)
     loc = -1/2:1/2;
     
     % Average operator for dphi
-    coeff = fd_coeff(loc,0,dx);
-    D0 = (spdiags(repmat(coeff',[Nelem,1]), 0:1,Nelem,Nelem+1));
-    
     MID = spdiags(ones([Nelem,1]), 1,Nelem-1,Nelem+1);
     
     % D1 is forward difference for phi and D1dphi is forward difference for

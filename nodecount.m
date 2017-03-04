@@ -1,6 +1,6 @@
 function [ nodes] = nodecount(solution)
-    %SOLUTION 
-%     solution = [phiL,dphiL,phiR,dphiR];
+    % Counts the number of boundstates with energy less than that of
+    % solution
 
     phiL = solution{1}(:,1);
     dphiL = solution{2}(:,1);

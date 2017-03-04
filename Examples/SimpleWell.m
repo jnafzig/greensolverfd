@@ -1,8 +1,8 @@
 
 clear;
 
-RelTol = eps;
-AbsTol = eps;
+RelTol = 1e-10;
+AbsTol = 1e-10;
 
 A = -5;
 B = 5;

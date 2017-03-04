@@ -17,7 +17,7 @@ vi = [v1,v2,v3];
 v = sum(vi,2);
 
 solver = solver_fh(Nelem,dx);
-bssolver = boundstatesolver_fh(Nelem,dx);
+bssolver = shootsolver_fh(Nelem,dx);
 
 mu = -.25;
 nm = solver(mu,v,sum(vLi),sum(vRi));
