@@ -45,15 +45,24 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
             vR = 0;
         end
         % calculate scale factors
-        f = ones(ceil(N),1);
-        f(end) = 1+mod(N,-1);
+        if (N~=0)
+            f = ones(ceil(N),1);
+            f(end) = 1+mod(N,-1);
+        else
+            f = 0;
+        end
         
-        maxN = nodecount(shoot(min(vL,vR),v,vL,vR));
-        assert(N<=maxN,'Max N is %i for this case',maxN);
-        
-        Emin = min(v);
         n = zeros(Nelem,1);
         response = zeros(Nelem);
+        
+        maxN = nodecount(shoot(min(vL,vR),v,vL,vR));
+        if N>maxN
+            warning('Max N is %i for this case',maxN);
+            return;
+        end
+            
+        
+        Emin = min(v);
         for i = 1:ceil(N)
             
             % use bisection to find a quick upperbound for state with i nodes
@@ -153,7 +162,7 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
 
             intR = dx*X(Nelem)^2*r^2/(1-r^2);
             dintRdr = dx*X(Nelem)^2*(2*r^3/(1-r^2)^2+2*r/(1-r^2));
-            dintRdXend = 2*dx*X(Nelem)*r^2/(1-r^2);
+            dintRdXnelem = 2*dx*X(Nelem)*r^2/(1-r^2);
 
             kL = acos(1-(E-vL)*dx^2)/dx;
             dkLdE = dx/sqrt(1-(1-dx^2*(E-vL))^2);
@@ -172,7 +181,7 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
             dintdE = (dintRdr*drdkR*dkRdE + dintLdl*dldkL*dkLdE);
             dintdphi = 2*dx*transpose(X(1:Nelem));
             dintdphi(1) = dintdphi(1) + dintLdX1;
-            dintdphi(end) = dintdphi(end) + dintRdXend;
+            dintdphi(end) = dintdphi(end) + dintRdXnelem;
             
             dintdX = [dintdphi,zeros(1,Nelem+1),dintdE];
             
