@@ -1,4 +1,4 @@
-function  v  = invert( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun)
+function  v  = invert( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun,v0)
     %INVERT( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun)
     % solver_array -> Cell array of function handles to bound state or
     % continuum solvers.
@@ -30,9 +30,10 @@ function  v  = invert( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun)
     vpR = 0; % currently the partition potential is assumed to be zero 
     vpL = 0; % outside the gridded region.  For now vpR and vpL can be 
              % adjusted manually to play around with that assumption.
-    
-    v0 = zeros(size(n0));
-
+    if nargin < 8
+        v0 = zeros(size(n0));
+    end
+        
     options = optimoptions('fsolve',...
         'Jacobian','on',...
         'TolFun',TolFun,...
