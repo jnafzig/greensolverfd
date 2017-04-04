@@ -71,7 +71,7 @@ function [ solver_fh ] = shooteigsolver_fh(Nelem, dx)
             
             X = [phi;dphi;Evals(i)];
             
-            % if wronval is not close enough to zero than do a step of
+            % if wronval is not close enough to zero then do a step of
             % inverse iteration
             if abs(wronval) > 1
                 % get derivative of normfactor with respect to X
