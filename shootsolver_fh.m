@@ -85,7 +85,7 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
             
             % if wronval is not close enough to zero than do a step of
             % inverse iteration
-            if abs(wronval) > 1
+            if abs(wronval) > 1e-8
                 % get derivative of normfactor with respect to X
                 [~,dCdX] = normfactor(X);
 
