@@ -39,7 +39,7 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
     
     solver_fh = @shootsolve;
 
-    function [n,response] = shootsolve(N,v,vL,vR)
+    function [n,response,dndx] = shootsolve(N,v,vL,vR)
         if nargin < 3
             vL = 0;
             vR = 0;
@@ -53,6 +53,7 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
         end
         
         n = zeros(Nelem,1);
+        dndx = zeros(Nelem,1);
         response = zeros(Nelem);
         
         maxN = nodecount(shoot(min(vL,vR),v,vL,vR));
@@ -122,6 +123,12 @@ function [ solver_fh ] = shootsolver_fh(Nelem, dx)
                 dXdv = lhs\rhs;              
 
                 response = response + f(i)*2*bsxfun(@times,X(1:Nelem),dXdv(1:Nelem,:));
+
+            end
+            
+            if nargout > 2
+                dndx = dndx + X(1:Nelem)...
+                    .*(X((1:Nelem)+Nelem)+X((1:Nelem)+Nelem+1));  
             end
         end
         
