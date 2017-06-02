@@ -1,4 +1,4 @@
-function  v  = partialinvert( solver_array, n0, N_mu_array, vi, vLi, vRi,msk,TolFun)
+function  v  = partialinvert( solver_array, n0, N_mu_array, vi, vLi, vRi,msk,TolFun,v0)
     %PARTIALINVERT( solver_array, n0, N_mu_array, vi, vLi, vRi,TolFun)
     % Attempts to invert the density in the locations indicated by msk
     % solver_array -> Cell array of function handles to bound state or
@@ -33,7 +33,11 @@ function  v  = partialinvert( solver_array, n0, N_mu_array, vi, vLi, vRi,msk,Tol
     vpL = 0; % outside the gridded region.  For now vpR and vpL can be 
              % adjusted manually to play around with that assumption.
     
-    v0 = zeros(size(n0));
+    if nargin < 9
+        v0 = zeros(size(n0(msk)));
+    else
+        v0 = v0(msk);
+    end
 
     options = optimoptions('fsolve',...
         'Jacobian','on',...
@@ -43,16 +47,18 @@ function  v  = partialinvert( solver_array, n0, N_mu_array, vi, vLi, vRi,msk,Tol
     
     function [err,grad] = eqn(vp)
 
+        vpfill = zeros(nelem,1);
+        vpfill(msk) = vp;
         n = zeros(nelem,1);
         grad = zeros(nelem);
         for i = 1:numfragments;
             [ni,gradi] = solver_array{i}...
-                (N_mu_array(i),vi(:,i)+vp,vLi(i)+vpL,vRi(i)+vpR);
+                (N_mu_array(i),vi(:,i)+vpfill,vLi(i)+vpL,vRi(i)+vpR);
             n = n + ni;
             grad = grad + gradi;
         end
         err = n(msk)-n0(msk);
-        grad = grad(msk,:);
+        grad = grad(msk,msk); 
         
     end
 end
