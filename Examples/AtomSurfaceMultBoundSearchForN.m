@@ -1,18 +1,15 @@
 clear;
 
-% mu = -2.019;
-% mu = -2.010;
-% mu = -2.003;
-mu = -1.79;
+mu = -1.5;
 
 L = 20; % Length of potential well
 s = 5; % steepness parameter
 V0 = 3.5; % Depth of potential well
 
-R = 3;
+R = 2;
 Z = 3;
 
-start = 10;
+start = 7;
 dx = 0.1; %spatial step size
 xmin = -L-R;
 xmax = start;
@@ -38,6 +35,22 @@ solver = solver_fh(Nelem,dx);
 shoot = shoot_fh(Nelem,dx);
 bssolver = shootsolver_fh(Nelem,dx);
 evsolver = shooteigsolver_fh(Nelem,dx);
+
+
+% scan through a range of mu values
+nummu = 100;
+muspace = linspace(-2.5,-.35,nummu+1);
+muspace = muspace(2:end);
+dmu = muspace(2)-muspace(1);
+
+
+Nrec = zeros(nummu,1);
+Hrec = zeros(nummu,1);
+mu_atom = zeros(nummu,1);
+vprec = zeros(Nelem,nummu);
+n_atomrec = zeros(Nelem,nummu);
+n_metalrec = zeros(Nelem,nummu);
+nm_rec = zeros(Nelem,nummu);
 
 nm = solver(mu,v_metal+v_atom,sum(vLi),sum(vRi));
 
@@ -71,7 +84,7 @@ diffmu = 1;
 N_lowbound = -inf;
 N_upbound = inf;
 iter = 0;
-maxiter = 10;
+maxiter = 20;
 tol = eps;
 done = false;
 while (~done && iter <= maxiter)
@@ -84,21 +97,40 @@ while (~done && iter <= maxiter)
     vp_part = partialinvert({solver,bssolver},nm,[mu,N_atom],vi,vLi,vRi,msk2,eps,vp_pred);
     vp(msk2) = vp_part;
     vp(~msk2) = vp_pred(find(~msk1,1,'last'));
-    
+
     [n_metal,chi_metal] = solver(mu,v_metal+vp,vLi(1),vRi(1));
     [n_atom,chi_atom] = bssolver(N_atom,v_atom+vp);
-    [eval,evec] = evsolver(N_atom,v_atom+vp);
-    f_atom = evec(:,end).^2;
     nf = n_metal+n_atom;
- 
+
+    if mod(N_atom,1) ~= 0
+        [eval,evec] = evsolver(N_atom,v_atom+vp);
+        f_atom = evec(:,end).^2;
+        mu_atom = eval(ceil(N_atom));
+        mu_atom_plus = mu_atom;
+
+        Epdft = sum(eval(1:floor(N_atom))) + eval(end)*mod(N_atom,1);
+        E = Epdft - sum(vp.*n_atom)*dx;
+    else
+        [eval,evec] = evsolver(N_atom+1,v_atom+vp);
+
+        mu_atom = eval(N_atom);
+        mu_atom_plus = eval(N_atom+1);
+        f_atom = evec(:,end-1).^2;
+
+        if mu_atom < mu && mu < mu_atom_plus
+            done = true;
+        end
+
+        Epdft = sum(eval(1:floor(N_atom)));
+        E = Epdft - sum(vp.*n_atom)*dx;
+    end
+
     % differential for how vp changes for small changes in Natom with
     % total density fixed
     dvp_dNatom = -(chi_atom+real(chi_metal))\f_atom; 
     % corresponding change in atom's chemical potential
     dmuatom_dN = (sum(dvp_dNatom.*f_atom)*dx);
 
-    mu_atom = eval(ceil(N_atom));
-    
     diffmu = mu-mu_atom;
 
     if (abs(diffmu) < tol)
@@ -110,7 +142,7 @@ while (~done && iter <= maxiter)
     % update bounds on N
     if dN > 0
         N_lowbound = N_atom;
-    
+
         % should we worry about crossing integer or bound on N?
         if N_upbound <= floor(N_atom) + 1
            if dN + N_atom >= N_upbound
@@ -139,10 +171,10 @@ while (~done && iter <= maxiter)
             end
         end
     end
-    
-    
+
+
     % if upper and lower bounds are equal we are done
-    if (N_lowbound == N_upbound)
+    if (N_lowbound == N_upbound) || done
         done = true;
     else
         N_atom = N_atom + dN;
@@ -154,5 +186,4 @@ while (~done && iter <= maxiter)
 
     iter = iter + 1;
 end
-
-
+    
